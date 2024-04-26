@@ -38,6 +38,19 @@ t += h;
 }
 return v;
 }
+double RK4(double v0, double t0, double b, double m, double g, double h, double tf){
+double k1, k2, k3, k4;
+double v = v0;
+
+k1 = h*Dv(v,b,m,g);
+k2 = h*Dv(v+0.5*k1,b,m,g);
+k3 = h*Dv(v+0.5*k2,b,m,g);
+k4 = h*Dv(v+k3,b,m,g);
+v = v + 0.1666666666667*(k1+2.0*k2+2*k3+k4);
+return v;
+}
+
+
 
 int main(){
 double t_0 = 0.0;
@@ -56,6 +69,7 @@ double V = 0.0;
 double Vtay = v_0;
 double Veu = v_0;
 double VeuM = v_0;
+double Vrk = v_0;
 double X = 0.0;
 double x0 = 0.0;
 double h = 1;
@@ -85,9 +99,10 @@ for(int t = 1; t<N; t++){
  Vtay = Taylor(Vtay,b,m,g,h);
  Veu = euler(Veu,b,m,g,h);
  VeuM = eulerM(VeuM,t,b,m,g,h,tf);
+ Vrk =  RK4(Vrk,t,b,m,g,h,tf); 
  V = (-1)*Va(v_0,v_l,g,t,t_0,e);
- X = Xa(x0,v_l,v_0,g,t,t_0,e);
-datos <<t<<"	"<<V<<"	"<<Vtay<<"	"<<Veu<<"	"<<VeuM<<"	"<<(std::abs(V-Vtay)*100)/V<<"	"<<(std::abs(V-Veu)*100)/V<<"	"<<(std::abs(V-VeuM)*100)/V<<"	"<<X<<std::endl;
+ //X = Xa(x0,v_l,v_0,g,t,t_0,e);
+datos <<t<<"	"<<V<<"	"<<Vtay<<"	"<<Veu<<"	"<<VeuM<<"	"<<(std::abs(V-Vtay)*100)/V<<"	"<<(std::abs(V-Veu)*100)/V<<"	"<<(std::abs(V-VeuM)*100)/V<<"	"<<Vrk<<"	"<<(std::abs(V-Vrk)*100)/V<<std::endl;
 }
 datos.close();
 std::cin>>S;
@@ -104,7 +119,7 @@ switch (S){
 	std::ofstream gp2("Graficador2.gp");
 	gp2<<"set term png\n";
 	gp2<<"set xlabel 'Pasos'\n";
-	gp2<<"set ylabel 'Error'\n";
+	gp2<<"set ylabel 'Error(%)'\n";
 	gp2<<"set output 'GError.png'\n";
 	gp2<<"set title 'Error'\n";
 	gp2<<"plot [0:50] 'datos.dat' u 1:6 w l t 'Taylor'";
@@ -122,7 +137,7 @@ switch (S){
 	std::ofstream gp4("Graficador2.gp");
 	gp4<<"set term png\n";
 	gp4<<"set xlabel 'Pasos'\n";
-	gp4<<"set ylabel 'Error'\n";
+	gp4<<"set ylabel 'Error(%)'\n";
 	gp4<<"set output 'GError.png'\n";
 	gp4<<"set title 'Error'\n";
 	gp4<<"plot [0:50] 'datos.dat' u 1:7 w l t 'Euler Mejorado'";
@@ -140,30 +155,30 @@ switch (S){
 	std::ofstream gp6("Graficador2.gp");
 	gp6<<"set term png\n";
 	gp6<<"set xlabel 'Pasos'\n";
-	gp6<<"set ylabel 'Error'\n";
+	gp6<<"set ylabel 'Error(%)'\n";
 	gp6<<"set output 'GError.png'\n";
 	gp6<<"set title 'Error'\n";
 	gp6<<"plot [0:50] 'datos.dat' u 1:8 w l t 'Euler Mejorado'";
 	gp6.close();}
 	break;
-	case 4:
-	//std::ofstream gp("Graficador.gp");
-	//gp<<"set term png\n";
-	//gp<<"set xlabel 't(s)'\n";
-	//gp<<"set ylabel 'v(m/s)'\n";
-	//gp<<"set output 'GAnalitica.png'\n";
-	//gp<<"set title 'Velocidad contra tiempo.'\n";
-	//gp<<"plot 'datos.dat' u 1:2 w l t 'Analitica','datos.dat' u 1:3 w l t 'Taylor'";
-	//gp.close();
-	//std::ofstream gp2("Graficador2.gp");
-	//gp2<<"set term png\n";
-	//gp2<<"set xlabel 'Pasos'\n";
-	//gp2<<"set ylabel 'Error'\n";
-	//gp2<<"set output 'GError.png'\n";
-	//gp2<<"set title 'Error'\n";
-	//gp2<<"plot [0:50] 'datos.dat' u 1:6 w l t 'Taylor';
-	//gp2.close();
-	std::cout<<"La implementación por Runge Kutta de 4to orden se encuentra en desarrollo"<<std::endl;
+	case 4:{
+	std::ofstream gp("Graficador.gp");
+	gp<<"set term png\n";
+	gp<<"set xlabel 't(s)'\n";
+	gp<<"set ylabel 'v(m/s)'\n";
+	gp<<"set output 'GAnalitica.png'\n";
+	gp<<"set title 'Velocidad contra tiempo.'\n";
+	gp<<"plot 'datos.dat' u 1:2 w l t 'Analitica','datos.dat' u 1:9 w l t 'Rk4'";
+	gp.close();
+	std::ofstream gp2("Graficador2.gp");
+	gp2<<"set term png\n";
+	gp2<<"set xlabel 'Pasos'\n";
+	gp2<<"set ylabel 'Error(%)'\n";
+	gp2<<"set output 'GError.png'\n";
+	gp2<<"set title 'Error'\n";
+	gp2<<"plot [0:50] 'datos.dat' u 1:10 w l t 'Rk4'";
+	gp2.close();}
+	//std::cout<<"La implementación por Runge Kutta de 4to orden se encuentra en desarrollo"<<std::endl;
 	break;
 	default:
 	std::cout<<"El valor introducido no es una de las opciones"<<std::endl;
